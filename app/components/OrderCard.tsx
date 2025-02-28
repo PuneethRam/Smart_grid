@@ -23,7 +23,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onOrderUpdate }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
+    <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
       <div className="bg-gradient-to-r from-teal-500 to-green-500 px-4 py-2 text-white font-semibold flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <Zap size={18} className="text-yellow-300" />
@@ -38,24 +38,24 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onOrderUpdate }) => {
       
       <div className="p-4">
         <div className="mb-4 space-y-2">
-          <div className="flex items-center text-gray-700">
+          <div className="flex items-center text-gray-700 dark:text-gray-300">
             <User size={16} className="mr-2" />
             <span className="text-sm">
               {isOwner ? 'Your Order' : `${order.user.substring(0, 6)}...${order.user.substring(order.user.length - 4)}`}
             </span>
           </div>
           
-          <div className="flex items-center text-gray-700">
+          <div className="flex items-center text-gray-700 dark:text-gray-300">
             <Zap size={16} className="mr-2" />
             <span className="text-sm font-medium">{order.amount} kWh</span>
           </div>
           
-          <div className="flex items-center text-gray-700">
+          <div className="flex items-center text-gray-700 dark:text-gray-300">
             <DollarSign size={16} className="mr-2" />
             <span className="text-sm font-medium">{order.price/1000000000000000000} ENGT per kWh</span>
           </div>
           
-          <div className="text-gray-700">
+          <div className="text-gray-700 dark:text-gray-300">
             <span className="text-sm font-medium">Total: {(order.amount * (order.price/1000000000000000000)).toFixed(2)} ENGT</span>
           </div>
         </div>
