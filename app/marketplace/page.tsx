@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '@/context/WalletContext';
 import { Order } from '@/types';
 import OrderCard from '../components/OrderCard';
@@ -13,25 +13,25 @@ export default function Marketplace() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { fetchOrders, isConnected, isLoading, account, connectWallet } = useWallet();
 
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
     if (!isConnected) return;
-    
+  
     setIsRefreshing(true);
     const fetchedOrders = await fetchOrders();
     setOrders(fetchedOrders);
     setIsRefreshing(false);
-  };
-
+  }, [isConnected,fetchOrders]); // Dependency added to memoize function
+  
   useEffect(() => {
     if (isConnected) {
       loadOrders();
     }
-  }, [isConnected]);
-
+  }, [isConnected, loadOrders]); // Now `loadOrders` can be safely added
+  
   const handleOrderUpdate = () => {
     loadOrders();
   };
-
+  
   return (
     <>
       {/* Header section with dark mode support */}

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { TrendingUp, Users, Clock } from "lucide-react";
 
 export default function MarketPage() {
-  const [recentOrders, setRecentOrders] = useState([
+  const [recentOrders] = useState([
     { user: "User A", amount: "10 kWh", price: "₹5.9", time: "5 mins ago" },
     { user: "User B", amount: "5 kWh", price: "₹5.8", time: "12 mins ago" },
     { user: "User C", amount: "8 kWh", price: "₹5.7", time: "25 mins ago" },

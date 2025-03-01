@@ -131,7 +131,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <p>Today's Earnings</p>
+              <p>Today Earnings</p>
               <p className="text-2xl font-bold">₹245.50</p>
             </div>
           </div>

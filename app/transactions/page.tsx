@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Download, Wallet } from "lucide-react";
 
 export default function TransactionsPage() {
-  const [transactions, setTransactions] = useState([
+  const [transactions] = useState([
     { orderId: "#125", energySold: 2.5, pricePerKwh: 5.2, earnings: 13, status: "Completed", date: "2024-03-15" },
     { orderId: "#124", energySold: 1.8, pricePerKwh: 5.0, earnings: 9, status: "Completed", date: "2024-03-14" },
     { orderId: "#123", energySold: 3.2, pricePerKwh: 5.5, earnings: 17.6, status: "Pending", date: "2024-03-14" },

@@ -14,7 +14,7 @@ export default function SignupPage() {
       await signup(email, password);
       router.push("/");
     } catch (error) {
-      alert("Signup failed. Try again.");
+      alert(error);
     }
   };
 

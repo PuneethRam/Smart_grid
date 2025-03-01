@@ -4,7 +4,7 @@ import "./globals.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; 
 import { LucideHome, LucidePlusCircle, LucideLineChart, LucideBarChart2, LucideSun, LucideMoon } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import { AuthProvider } from "@/context/AuthContext";
 import { WalletProvider } from "@/context/WalletContext";  // ✅ Import WalletProvider
 
