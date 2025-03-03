@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { TrendingUp, Users, Clock } from "lucide-react";
+import ProtectedRoute from "../components/ProtectedRoute";
+
 
 export default function MarketPage() {
   const [recentOrders] = useState([
@@ -11,6 +13,7 @@ export default function MarketPage() {
   ]);
 
   return (
+    <ProtectedRoute>
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Market Insights & Grid Stats</h1>
 
@@ -84,5 +87,6 @@ export default function MarketPage() {
         </div>
       </div>
     </div>
+  </ProtectedRoute>  
   );
 }

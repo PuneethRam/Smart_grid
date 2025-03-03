@@ -5,6 +5,8 @@ import { Bell, Sun, Battery, ArrowUpRight } from "lucide-react";
 import { db, auth } from "@/lib/firebase"; // Adjust the import path based on your project structure
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import ProtectedRoute from "../components/ProtectedRoute";
+
 
 interface Order {
   id: string;
@@ -57,6 +59,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
+    <ProtectedRoute>
     <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex justify-between items-center">
@@ -138,6 +141,7 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  </ProtectedRoute>  
   );
 }
 

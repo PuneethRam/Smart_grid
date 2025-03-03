@@ -6,6 +6,8 @@ import { Order } from '@/types';
 import OrderCard from '../components/OrderCard';
 import CreateOrderModal from '../components/CreateOrderModal';
 import { Plus, RefreshCw, Zap } from 'lucide-react';
+import ProtectedRoute from "../components/ProtectedRoute";
+
 
 export default function Marketplace() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -33,6 +35,7 @@ export default function Marketplace() {
   };
   
   return (
+    <ProtectedRoute>
     <>
       {/* Header section with dark mode support */}
       <header className="bg-gradient-to-r from-green-600 to-teal-500 text-white shadow-md dark:shadow-gray-800">
@@ -139,5 +142,6 @@ export default function Marketplace() {
         />
       </div>
     </>
+  </ProtectedRoute>
   );
 }

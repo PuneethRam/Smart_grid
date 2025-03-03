@@ -2,10 +2,10 @@ import React, { createContext, useState, useContext, useEffect, ReactNode } from
 import { BrowserProvider, Contract, ethers } from 'ethers';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Order, OrderType, OrderStatus } from '../types';
+import { Order, OrderType} from '../types';
 
 // ABI for the P2PEnergyTrading contract
-const contractABI =[
+const contractABI = [
 	{
 		"inputs": [
 			{
@@ -415,8 +415,6 @@ const contractABI =[
 		"type": "function"
 	}
 ];
-
-// ABI for ERC20 token
 const tokenABI = [
 	{
 		"inputs": [
@@ -697,6 +695,17 @@ const tokenABI = [
 	}
 ];
 
+// Interface for transaction data
+export interface Transaction {
+  orderId: string;
+  type: string;
+  energySold: string;
+  pricePerKwh: string;
+  earnings: string;
+  status: string;
+  date: string;
+}
+
 interface WalletContextType {
   account: string | null;
   connectWallet: () => Promise<void>;
@@ -705,6 +714,7 @@ interface WalletContextType {
   directPurchase: (sellOrderId: number) => Promise<void>;
   cancelOrder: (orderId: number) => Promise<void>;
   fetchOrders: () => Promise<Order[]>;
+  fetchUserTransactions: () => Promise<Transaction[]>;
   isLoading: boolean;
 }
 
@@ -729,7 +739,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           const signer = await provider.getSigner();
           const energyContract = new Contract(CONTRACT_ADDRESS, contractABI, signer);
           const erc20Contract = new Contract(TOKEN_ADDRESS, tokenABI, signer);
-          
+
           setContract(energyContract);
           setTokenContract(erc20Contract);
           toast.success("Connected to energy trading contract");
@@ -738,7 +748,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           toast.error("Failed to initialize contracts");
         }
       };
-      
+
       initializeContracts();
     }
   }, [account, provider]);
@@ -759,9 +769,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
       }
     };
-    
+
     checkConnection();
-    
+
     // Listen for account changes
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts: string[]) => {
@@ -775,7 +785,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
       });
     }
-    
+
     return () => {
       if (window.ethereum) {
         window.ethereum.removeAllListeners('accountsChanged');
@@ -788,7 +798,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       toast.error("Please install MetaMask to use this application");
       return;
     }
-    
+
     try {
       setIsLoading(true);
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -809,30 +819,30 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       toast.error("Wallet not connected");
       return;
     }
-    
+
     try {
       setIsLoading(true);
-      
+
       // Convert amount and price to wei (assuming 18 decimals)
       const amountInWei = ethers.parseUnits(amount.toString(), 0);
       const priceInWei = ethers.parseUnits(price.toString(), 18);
-      
+
       // If buying, approve token spending first
       if (orderType === OrderType.BUY) {
         const totalCost = amountInWei * priceInWei;
         const allowance = await tokenContract.allowance(account, CONTRACT_ADDRESS);
-        
+
         if (allowance < totalCost) {
           const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, totalCost);
           await approveTx.wait();
           toast.success("Token approval successful");
         }
       }
-      
+
       // Place the order
       const tx = await contract.placeOrder(orderType, amountInWei, priceInWei);
       await tx.wait();
-      
+
       toast.success(`${OrderType[orderType]} order placed successfully`);
     } catch (error) {
       console.error("Failed to place order:", error);
@@ -847,14 +857,14 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       toast.error("Wallet not connected");
       return;
     }
-    
+
     try {
       setIsLoading(true);
-      
+
       // Get order details to calculate total cost
       const orderDetails = await contract.orders(sellOrderId);
       const totalCost = orderDetails.amount * orderDetails.price;
-      
+
       // Approve token spending
       const allowance = await tokenContract.allowance(account, CONTRACT_ADDRESS);
       if (allowance < totalCost) {
@@ -862,11 +872,11 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         await approveTx.wait();
         toast.success("Token approval successful");
       }
-      
+
       // Execute purchase
       const tx = await contract.directPurchase(sellOrderId);
       await tx.wait();
-      
+
       toast.success("Energy purchased successfully");
     } catch (error) {
       console.error("Failed to purchase energy:", error);
@@ -881,12 +891,12 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       toast.error("Wallet not connected");
       return;
     }
-    
+
     try {
       setIsLoading(true);
       const tx = await contract.cancelOrder(orderId);
       await tx.wait();
-      
+
       toast.success("Order cancelled successfully");
     } catch (error) {
       console.error("Failed to cancel order:", error);
@@ -897,24 +907,76 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const fetchOrders = async () => {
-	if (!contract) return [];
-  
-	try {
-	  const orders = await contract.getOpenOrders(); // Use getAllOrders() if needed
-	  return orders.map((order: any) => ({
-		id: order.id.toString(),
-		user: order.user,
-		orderType: order.orderType === 0 ? OrderType.BUY : OrderType.SELL,
-		amount: order.amount.toString(),
-		price: order.price.toString(),
-		status: ['OPEN', 'MATCHED', 'COMPLETED', 'CANCELLED'][order.status],
-	  }));
-	} catch (error) {
-	  console.error('Error fetching orders:', error);
-	  return [];
-	}
+    if (!contract) return [];
+
+    try {
+      const orders = await contract.getOpenOrders(); // Use getAllOrders() if needed
+      return orders.map((order: any) => ({
+        id: order.id.toString(),
+        user: order.user,
+        orderType: order.orderType === 0 ? OrderType.BUY : OrderType.SELL,
+        amount: order.amount.toString(),
+        price: order.price.toString(),
+        status: ['OPEN', 'MATCHED', 'COMPLETED', 'CANCELLED'][order.status],
+      }));
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      return [];
+    }
   };
-  
+
+  // New function to fetch user transactions
+  const fetchUserTransactions = async (): Promise<Transaction[]> => {
+    if (!contract || !account) return [];
+
+    try {
+      setIsLoading(true);
+      
+      // Get all orders from the contract
+      const allOrders = await contract.getAllOrders();
+      
+      // Filter for user's orders
+      const userTxs = allOrders.filter((order: any) => 
+        order.user.toLowerCase() === account.toLowerCase()
+      );
+      
+      // Format transactions for display
+      const formattedTxs = userTxs.map((tx: any) => {
+        // Convert order status to string
+        const statusMap = ["Open", "Matched", "Completed", "Cancelled"];
+        const statusText = statusMap[tx.status] || "Unknown";
+        
+        // Convert order type to string
+        const typeText = tx.orderType === 0 ? "Buy" : "Sell";
+        
+        // Format date (using current date since blockchain doesn't store timestamps)
+        const date = new Date().toISOString().split('T')[0];
+        
+        // Calculate earnings for sell orders - only "Completed" or "Matched" sell orders count as earnings
+        const earnings = (tx.orderType === 1 && (tx.status === 1 || tx.status === 2)) 
+          ? ethers.formatUnits(tx.amount * tx.price, 18)
+          : "0";
+        
+        return {
+          orderId: `#${tx.id.toString()}`,
+          energySold: ethers.formatUnits(tx.amount, 0),
+          pricePerKwh: ethers.formatUnits(tx.price, 18),
+          earnings: parseFloat(earnings).toFixed(2),
+          status: statusText,
+          type: typeText,
+          date: date
+        };
+      });
+      
+      return formattedTxs;
+    } catch (error) {
+      console.error("Error fetching user transactions:", error);
+      toast.error("Failed to fetch transactions");
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <WalletContext.Provider
@@ -926,6 +988,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         directPurchase,
         cancelOrder,
         fetchOrders,
+        fetchUserTransactions,
         isLoading
       }}
     >
