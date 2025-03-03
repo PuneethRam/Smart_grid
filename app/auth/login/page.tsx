@@ -12,18 +12,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>(""); 
+
 
 
   const handleLogin = async () => {
     setLoading(true);
-    setError(null);
     try {
       await login(email, password);
       await saveUserToFirestore();
       router.push("/dashboard");
     } catch (error) {
       setError("Login failed. Check your credentials.");
+
     } finally {
       setLoading(false);
     }
@@ -33,7 +34,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md space-y-6 rounded-lg bg-white p-6 shadow-lg">
         <h1 className="text-3xl font-bold text-center text-gray-800">Login</h1>
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+        {error !== "" && <p className="text-sm text-red-500 text-center">{error}</p>}
         <input
           type="email"
           placeholder="Email"
