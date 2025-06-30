@@ -104,6 +104,27 @@ function NavContent() {
   );
 }
 
+// Bolt Badge Component
+function BoltBadge() {
+  const handleBoltClick = () => {
+    window.open('https://bolt.new/', '_blank');
+  };
+
+  return (
+    <button
+      onClick={handleBoltClick}
+      className="fixed bottom-8 left-4 z-50 w-20 h-20 rounded-full overflow-hidden hover:scale-110 transition-transform duration-200 shadow-lg hover:shadow-xl"
+      aria-label="Visit Bolt.new"
+    >
+      <img
+        src="https://github.com/kickiniteasy/bolt-hackathon-badge/blob/main/src/public/bolt-badge/black_circle_360x360/black_circle_360x360.png?raw=true"
+        alt="Bolt Badge"
+        className="w-full h-full object-cover"
+      />
+    </button>
+  );
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
@@ -132,6 +153,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </nav>
 
             <main className="md:ml-64 p-4">{children}</main>
+            
+            {/* Bolt Badge - only show on non-auth pages */}
+            <BoltBadge />
           </WalletProvider>
         </AuthProvider>
       </body>
